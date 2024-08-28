@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
   },
   date:{
-    type:Date,
+    type:String,
     required:true,
   },
   time:{

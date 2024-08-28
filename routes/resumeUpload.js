@@ -7,7 +7,10 @@ import isAdmin from '../middleware/isAdmin.js';
 const router = express.Router();
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 }, // Set file size limit to 10MB
+});
 
 router.post('/upload', upload.single('resume'), async (req, res) => {
     try {
@@ -21,14 +24,14 @@ router.post('/upload', upload.single('resume'), async (req, res) => {
         const minutes = currentDateTime.getMinutes().toString().padStart(2, '0');
         const seconds = currentDateTime.getSeconds().toString().padStart(2, '0');
 
-        const date = `${year}-${month}-${day}`;
-        const time = `${hours}:${minutes}:${seconds}`;
+        const DATE = `${year}-${month}-${day}`;
+        const TIME = `${hours}:${minutes}:${seconds}`;
 
         const newUser = new User({
             name: req.body.name,
             email: req.body.email,
-            date: date,
-            time: time,
+            date: DATE,
+            time: TIME,
             resume: {
                 data: req.file.buffer,
                 contentType: req.file.mimetype,
@@ -37,9 +40,13 @@ router.post('/upload', upload.single('resume'), async (req, res) => {
         });
 
         await newUser.save();
+
         res.status(201).send({ response: 'User registered and resume uploaded successfully!' });
+
     } catch (error) {
+
         res.status(500).send({ error: 'Error registering user and uploading resume' });
+
     }
 });
 
