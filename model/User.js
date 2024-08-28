@@ -10,6 +10,14 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  date:{
+    type:Date,
+    required:true,
+  },
+  time:{
+    type:String,
+    required:true,
+  },
   resume: {
     data: Buffer,
     contentType: String,

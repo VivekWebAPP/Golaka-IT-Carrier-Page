@@ -11,9 +11,24 @@ const upload = multer({ storage: storage });
 
 router.post('/upload', upload.single('resume'), async (req, res) => {
     try {
+        const currentDateTime = new Date();
+
+        const year = currentDateTime.getFullYear();
+        const month = (currentDateTime.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+        const day = currentDateTime.getDate().toString().padStart(2, '0');
+
+        const hours = currentDateTime.getHours().toString().padStart(2, '0');
+        const minutes = currentDateTime.getMinutes().toString().padStart(2, '0');
+        const seconds = currentDateTime.getSeconds().toString().padStart(2, '0');
+
+        const date = `${year}-${month}-${day}`;
+        const time = `${hours}:${minutes}:${seconds}`;
+
         const newUser = new User({
             name: req.body.name,
             email: req.body.email,
+            date: date,
+            time: time,
             resume: {
                 data: req.file.buffer,
                 contentType: req.file.mimetype,
@@ -22,9 +37,9 @@ router.post('/upload', upload.single('resume'), async (req, res) => {
         });
 
         await newUser.save();
-        res.status(201).send({response:'User registered and resume uploaded successfully!'});
+        res.status(201).send({ response: 'User registered and resume uploaded successfully!' });
     } catch (error) {
-        res.status(500).send({error:'Error registering user and uploading resume'});
+        res.status(500).send({ error: 'Error registering user and uploading resume' });
     }
 });
 
