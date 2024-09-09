@@ -18,28 +18,28 @@ const upload = multer({
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.USER_EMAIL,
-      pass: process.env.PASSWORD
+        user: process.env.USER_EMAIL,
+        pass: process.env.PASSWORD
     }
-  });
+});
 
 router.post('/send-email', (req, res) => {
     const { to, subject, text } = req.body;
-  
+
     const mailOptions = {
-      from: 'vivekphadake17@gmail.com',
-      to: to, 
-      subject: subject,
-      text: text 
+        from: process.env.USER_EMAIL,
+        to: to,
+        subject: subject,
+        text: text
     };
-  
+
     transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return res.status(500).send({ message: 'Error sending email', error });
-      }
-      res.status(200).send({ message: 'Email sent successfully', info });
+        if (error) {
+            return res.status(500).send({ message: 'Error sending email', error });
+        }
+        res.status(200).send({ message: 'Email sent successfully', info });
     });
-  });
+});
 
 router.post('/upload', upload.single('resume'), async (req, res) => {
     try {
