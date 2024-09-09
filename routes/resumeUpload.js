@@ -3,7 +3,10 @@ import User from '../model/User.js';
 import multer from 'multer';
 import findToken from '../middleware/findToken.js';
 import isAdmin from '../middleware/isAdmin.js';
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const router = express.Router();
 
 const storage = multer.memoryStorage();
@@ -11,6 +14,32 @@ const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 10 * 1024 * 1024 }, // Set file size limit to 10MB
 });
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.USER_EMAIL,
+      pass: process.env.PASSWORD
+    }
+  });
+
+router.post('/send-email', (req, res) => {
+    const { to, subject, text } = req.body;
+  
+    const mailOptions = {
+      from: 'vivekphadake17@gmail.com',
+      to: to, 
+      subject: subject,
+      text: text 
+    };
+  
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).send({ message: 'Error sending email', error });
+      }
+      res.status(200).send({ message: 'Email sent successfully', info });
+    });
+  });
 
 router.post('/upload', upload.single('resume'), async (req, res) => {
     try {
