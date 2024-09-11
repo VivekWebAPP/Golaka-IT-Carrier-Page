@@ -9,26 +9,46 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
+
+// Allowed origins
 const allowedOrigins = [
     'http://localhost:3000',
     'https://golokait-carriers-page.vercel.app'
 ];
+
+// Connect to the database
 ConnectToDB();
+
+// Middleware
 app.use(express.json());
+
+// CORS configuration
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
         }
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Specify allowed methods
-    credentials: true  // Allow credentials (e.g., cookies)
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,  // Allow credentials like cookies
 }));
-app.options('*', cors());  // Allow preflight requests for all routes
 
+// Handle preflight OPTIONS requests globally
+app.options('*', cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+}));
+
+// Routes
 app.get('/', (req, res) => {
     res.send('Hello World');
 });
@@ -36,6 +56,7 @@ app.get('/', (req, res) => {
 app.use('/adminRoute', AdminRoute);
 app.use('/resume', ResumeUpload);
 
+// Start the server
 app.listen(port, () => {
     console.log(`Server Started At Port: http://localhost:${port}/`);
 });
