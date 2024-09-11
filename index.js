@@ -16,10 +16,18 @@ const allowedOrigins = [
 ConnectToDB();
 app.use(express.json());
 app.use(cors({
-    origin: allowedOrigins, // Allow requests from this origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
-    credentials: true, // If your requests include credentials like cookies
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Specify allowed methods
+    credentials: true  // Allow credentials (e.g., cookies)
 }));
+app.options('*', cors());  // Allow preflight requests for all routes
 
 app.get('/', (req, res) => {
     res.send('Hello World');
