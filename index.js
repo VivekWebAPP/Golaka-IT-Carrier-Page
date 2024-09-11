@@ -11,7 +11,7 @@ const app = express();
 const port = process.env.PORT;
 const allowedOrigins = [
     'http://localhost:3000',
-    'https://golokait-carriers-page.vercel.app/'
+    'https://golokait-carriers-page.vercel.app'
 ];
 ConnectToDB();
 app.use(express.json());
