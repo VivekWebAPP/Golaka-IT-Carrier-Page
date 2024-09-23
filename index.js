@@ -10,6 +10,7 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 const assiginedOrigin = [
+    'http://localhost:3000',
     'https://golokait-carriers-page.vercel.app',
     'https://golokait-carrier-admin-panel.vercel.app'
 ]
