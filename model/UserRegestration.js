@@ -9,6 +9,8 @@ const createUsersTable = async () => {
       email VARCHAR(255) NOT NULL UNIQUE,
       date DATE NOT NULL,
       time TIME NOT NULL,
+      selected VARCHAR(50) DEFAULT 'false',
+      rejected VARCHAR(50) DEFAULT 'false',
       resume_data LONGBLOB,
       resume_contentType VARCHAR(255),
       resume_originalName VARCHAR(255),

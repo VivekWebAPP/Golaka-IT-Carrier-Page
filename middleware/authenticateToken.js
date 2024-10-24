@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const authenticateToken = (req, res, next) => {
-  const token = req.header('Authorization')?.split(' ')[1]; 
+  const token = req.header('Auth-Token' || 'auth-token');
   if (!token) {
     return res.status(401).json({ error: 'Access denied, no token provided' });
   }

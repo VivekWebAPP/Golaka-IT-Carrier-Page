@@ -5,7 +5,9 @@ import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import authenticateToken from '../middleware/authenticateToken.js';
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
+dotenv.config();
 
 const router = express.Router();
 
@@ -18,6 +20,7 @@ const transporter = nodemailer.createTransport({
 });
 
 router.post('/send-email', (req, res) => {
+  console.log(req.body);
   const { to, subject, text } = req.body;
 
   const mailOptions = {
@@ -41,16 +44,15 @@ router.post('/signup', [
   body('email').isEmail().withMessage('Email is not valid'),
   body('password').isString().isLength(5).withMessage('Password should be at least 5 characters long'),
 ], async (req, res) => {
-  
 
   try {
     console.log(req.body);
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-  const { name, email, password } = req.body;
+    const { name, email, password } = req.body;
     const [existingUser] = await pool.query('SELECT * FROM Admins WHERE email = ?', [email]);
     if (existingUser.length > 0) {
       return res.status(400).json({ error: 'User already exists with this email' });
@@ -115,5 +117,53 @@ router.get('/details', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Route to save rejection feedback
+router.post('/save-rejection', authenticateToken, async (req, res) => {
+
+  try {
+    const { user_id, rejection_reason } = req.body;
+
+    if (!user_id || !rejection_reason) {
+      return res.status(400).json({ error: 'User ID and rejection reason are required.' });
+    }
+
+    const query = `
+      INSERT INTO rejected_users_feedback (user_id, rejection_reason) 
+      VALUES (?, ?)
+  `;
+
+    await pool.query(query, [user_id, rejection_reason]);
+
+    res.status(200).send({ feedback: 'Admin feedback successfully saved to database' });
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(501).send({ error: "Internal server error" });
+  }
+
+});
+
+// Get all feedback from the database
+router.get('/feedback', authenticateToken, async (req, res) => {
+  const getFeedbackQuery = `SELECT * FROM rejected_users_feedback`;
+
+  try {
+    const connection = await pool.getConnection();
+    const [rows] = await connection.query(getFeedbackQuery);
+    connection.release();
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'No feedback found.' });
+    }
+
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Error fetching feedback:', error.message);
+    res.status(500).json({ error: 'An error occurred while fetching feedback.' });
+  }
+});
+
+
 
 export default router;
