@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
 
 app.use('/users', userRoutes);
 app.use('/admin', adminRoutes);
-app.use('/jobPortal',jobRoutes);
+app.use('/jobPortal', jobRoutes);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
